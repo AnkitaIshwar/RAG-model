@@ -1,0 +1,160 @@
+[4:47 pm, 16/5/2024] Sai Anku: <project ...>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.ragchatbot</groupId>
+    <artifactId>rag-chatbot</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.milvus</groupId>
+            <artifactId>milvus-client</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <!-- Add other necessary dependencies -->
+    </dependencies>
+</project>
+[4:47 pm, 16/5/2024] Sai Anku: package com.ragchatbot;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ChatbotApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ChatbotApplication.class, args);
+    }
+}
+[4:48 pm, 16/5/2024] Sai Anku: package com.ragchatbot.controller;
+
+import com.ragchatbot.service.EmbeddingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@RestController
+@RequestMapping("/api/upload")
+public class UploadController {
+
+    @Autowired
+    private EmbeddingService embeddingService;
+
+    @PostMapping
+    public String uploadFile(@RequestParam("file") MultipartFile file) {
+        return embeddingService.processFile(file);
+    }
+}
+[4:48 pm, 16/5/2024] Sai Anku: package com.ragchatbot.controller;
+
+import com.ragchatbot.service.ChatService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/chat")
+public class ChatController {
+
+    @Autowired
+    private ChatService chatService;
+
+    @PostMapping
+    public String chat(@RequestBody String userInput) {
+        return chatService.getChatResponse(userInput);
+    }
+}
+[4:48 pm, 16/5/2024] Sai Anku: package com.ragchatbot.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+
+@Service
+public class EmbeddingService {
+    // Add logic to chunk text, generate embeddings, and store in Milvus
+
+    public String processFile(MultipartFile file) {
+        try {
+            // Logic to process file and generate embeddings
+            return "File processed successfully";
+        } catch (IOException e) {
+            return "Error processing file";
+        }
+    }
+}
+[4:48 pm, 16/5/2024] Sai Anku: package com.ragchatbot.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class ChatService {
+    // Add logic to generate response from user input using RAG model
+
+    public String getChatResponse(String userInput) {
+        // Logic to retrieve relevant context and generate response
+        return "Chat response";
+    }
+}
+[4:49 pm, 16/5/2024] Sai Anku: <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RAG Chatbot</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <h1>Welcome to RAG Chatbot</h1>
+    <a href="upload.html">Upload Data</a>
+    <a href="chat.html">Chat</a>
+</body>
+</html>
+[4:49 pm, 16/5/2024] Sai Anku: <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Data</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <h1>Upload Document</h1>
+    <input type="file" id="fileInput">
+    <button onclick="uploadFile()">Upload</button>
+    <script src="js/upload.js"></script>
+</body>
+</html>
+[4:49 pm, 16/5/2024] Sai Anku: function uploadFile() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+
+    if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.text())
+          .then(data => alert(data))
+          .catch(error => console.error('Error:', error));
+    } else {
+        alert("Please select a file first");
+    }
+}
+[4:50 pm, 16/5/2024] Sai Anku: function sendMessage() {
+    const userInput = document.getElementById('userInput').value;
+
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userInput)
+    }).then(response => response.text())
+      .then(data => document.getElementById('chatResponse').innerText = data)
+      .catch(error => console.error('Error:', error));
+}
